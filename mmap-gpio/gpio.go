@@ -5,6 +5,7 @@ import (
 	"syscall"
 	"log"
 	"unsafe"
+	"time"
 )
 
 type param struct {
@@ -142,11 +143,7 @@ const (
 )
 
 func Open(port, pin, dir int) Pin {
-	if dir == In {
-		SetPinMode(port, pin, 0)
-	} else {
-		SetPinMode(port, pin, 1)
-	}
+	SetPinMode(port, pin, byte(dir))
 	return Pin{port, pin}
 }
 
@@ -164,6 +161,19 @@ func (p Pin) H() {
 
 func (p Pin) L() {
 	p.Write(false)
+}
+
+func (p Pin) Pwm(up, down int, dur time.Duration) {
+	for {
+		p.H()
+		for i := 0; i < up; i++ {
+			time.Sleep(dur)
+		}
+		p.L()
+		for i := 0; i < down; i++ {
+			time.Sleep(dur)
+		}
+	}
 }
 
 func PollEInt() (r uint32) {
