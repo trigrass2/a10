@@ -16,6 +16,11 @@ MODULE_LICENSE("GPL");
 
 #define MAJOR_NUM 232
 
+void *base[2];
+
+#include "gpio.c"
+#include "oled.c"
+
 typedef struct {                                                        
 	int slot;
 	int off;
@@ -23,11 +28,11 @@ typedef struct {
 	int size;       
 } param_t ;
 
-void *base[2];
 
 static long hello_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
 	param_t p;
 	long r;
+	__u8 buf[128*8];
 
 	switch (cmd) {
 	case 0: // read
@@ -38,6 +43,11 @@ static long hello_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
 		r = copy_from_user(&p, (void __user *)arg, sizeof(p));
 		r = copy_from_user(base[p.slot]+p.off, p.data, p.size);
 		break;
+	case 5: // oled write screen
+		r = copy_from_user(buf, (void __user *)arg, sizeof(buf));
+		oled_write_scr(buf);
+		break;
+
 	default:
 		r = 0;
 	}
@@ -110,10 +120,13 @@ int init_module(void) {
 		return -EINVAL;
 	}
 
+	oled_init();
+
 	return 0;  
 }  
 
 void cleanup_module(void) {  
+	free_irq(28, (void *)0x1653);
 	unregister_chrdev(MAJOR_NUM, "hello");
 	printk(KERN_ERR "Leave hello module!\n");  
 }  

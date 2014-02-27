@@ -1,6 +1,8 @@
-obj-m += mod.o  
+
+obj-m = mod.o
+
 CURRENT_DIR:=$(shell pwd)  
-KERNEL_PATH:=/root/arm/linux-3.4.43
+KERNEL_PATH:=/root/sun4i-src/linux-sunxi-sunxi-v3.4.79-r0
   
 all:  
 	    make -C $(KERNEL_PATH) M=$(CURRENT_DIR) modules  

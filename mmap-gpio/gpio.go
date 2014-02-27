@@ -15,6 +15,11 @@ type param struct {
 	size int
 }
 
+func Call5(b []byte) {
+	syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd),
+		5, uintptr(unsafe.Pointer(&b[0])))
+}
+
 func io(slot int, w uintptr, off int, b unsafe.Pointer, size int) {
 	p := &param{
 		slot: slot,
