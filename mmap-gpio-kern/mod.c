@@ -121,6 +121,8 @@ int init_module(void) {
 	}
 
 	oled_init();
+	printk(KERN_DEBUG "oled: pin %x %x %x %x\n",
+			oled.sclk, oled.sdin, oled.dc, oled.rst);
 
 	return 0;  
 }  

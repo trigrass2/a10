@@ -1,6 +1,9 @@
 
 static inline int name_to_gpio(char *name) {
-	return ((name[1]-'A')<<8) + name[2]-'0';
+	int r = name[1] - 'A';
+	r <<= 8;
+	r |= name[2] - '0';
+	return r;
 }
 
 static inline u32 gpio_readl(int off) {
@@ -32,6 +35,15 @@ static inline int gpio_get_value(int gpio)
 }
 
 static inline void gpio_direction_output(int gpio) {
+	int port = gpio>>8;
+	int pin = gpio&0xff;
+	int pin_idx = pin>>3;
+	int off = port*0x24 + (pin_idx<<2);
+	u32 v = gpio_readl(off);
+	int bit_off = (pin - (pin_idx<<3))<<2;
+	v &= ~(7<<bit_off);
+	v |= 1<<bit_off;
+	gpio_writel(off, v);
 }
 
 

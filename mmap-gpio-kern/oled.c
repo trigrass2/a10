@@ -32,9 +32,7 @@ static void oled_pos(u8 x, u8 y) {
 	oled_cmd(( x & 0x0f ) | 0x01);
 }
 
-void oled_init(void) {
-	int i;
-
+void oled_init_pins(void) {
 	oled.sclk = name_to_gpio("PI4");
 	gpio_direction_output(oled.sclk);
 	oled.sdin = name_to_gpio("PI5");
@@ -43,6 +41,12 @@ void oled_init(void) {
 	gpio_direction_output(oled.rst);
 	oled.dc = name_to_gpio("PI7");
 	gpio_direction_output(oled.dc);
+}
+
+void oled_init(void) {
+	int i;
+
+	oled_init_pins();
 
 	gpio_set_value(oled.sclk, 1);
 	gpio_set_value(oled.rst, 0);
@@ -82,6 +86,7 @@ void oled_init(void) {
 
 static void oled_write_scr(u8 buf[128*8]) {
 	int i, j;
+
 	for (i = 0; i < 8; i++) {
 		oled_pos(0, i);
 		for (j = 0; j < 128; j++) 
